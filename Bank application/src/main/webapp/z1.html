@@ -1,0 +1,280 @@
+st.setString(1, "username");
+        st.setString(2, "password");
+        st.setString(3, "balance");
+        st.setString(4, "adminUname");
+        st.setString(5,"adminPass");
+        st.setString(6, "AccountNo");
+        st.setString(7, "fullName");
+        st.setString(8, "address");
+        st.setString(9, "mobileNo");
+        st.setString(10, "EmailId");
+        st.setString(11, "Type");
+        st.setString(12, "Dob");
+        st.setString(13, "idProof");
+        <!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<h2>Bank Account Deposit</h2>
+
+<div class="container">
+
+  <div>
+    <label for="balance">Account Balance:</label>
+ 
+    
+    <input type="number" id="balance" placeholder="Enter account balance" value="getBalance()">
+  </div>
+
+  <div>
+    <label for="amount">Deposit Amount:</label>
+    <input type="number" id="amount"  name="Damount" placeholder="Enter deposit amount">
+  </div>
+
+  <div id="buttons">
+  <div>
+    <button onclick="deposit()">deposit</button>
+    <button onclick="checkBalance()">Check Balance</button>
+  </div>
+  
+  
+</div>
+  <div id="result</div>
+</div>
+
+
+    <script src="scriptDeposit.js"></script>
+    
+package com.controller;
+
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+@WebServlet("/depositServlet")
+public class depositServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String action = request.getParameter("action");
+        int accountNumber = Integer.parseInt(request.getParameter("accountNumber"));
+
+        if ("deposit".equals(action)) {
+            int amount = Integer.parseInt(request.getParameter("amount"));
+            boolean success = com.user.DAO.UserDAO.bankManagement.deposit(accountNumber, amount);
+            response.getWriter().write(success ? "Deposit successful" : "Deposit failed");
+        } else if ("withdraw".equals(action)) {
+            int amount = Integer.parseInt(request.getParameter("amount"));
+            boolean success = com.user.DAO.UserDAO.bankManagement.withdraw(accountNumber, amount);
+            response.getWriter().write(success ? "Withdrawal successful" : "Withdrawal failed");
+        } else if ("checkBalance".equals(action)) {
+            int balance = com.user.DAO.UserDAO.bankManagement.getBalance(accountNumber);
+            response.getWriter().write("Balance: " + balance);
+        }
+    }
+
+    package com.controller;
+
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+@WebServlet("/BankServlet")
+public class BankServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String action = request.getParameter("action");
+        int accountNumber = Integer.parseInt(request.getParameter("accountNumber"));
+      
+        
+        if("deposit".equals(action)) {
+            int amount = Integer.parseInt(request.getParameter("amount"));
+            boolean success = com.user.DAO.UserDAO.bankManagement.deposit(accountNumber, amount);
+            if (success) {
+            	response.sendRedirect("DepositSuccess.html");
+            }
+            else {
+            	response.sendRedirect("Deposit.jsp");
+            }
+            
+        }
+        
+        else if ("withdraw".equals(action)) {
+            int amount = Integer.parseInt(request.getParameter("amount"));
+            String username = request.getParameter("username");
+            String password = request.getParameter("password");
+            boolean success = com.user.DAO.UserDAO.bankManagement.withdraw(username, password, amount);
+            if(success) {
+            	response.sendRedirect("WithdrawSuccess.html");
+            }
+            else { 
+            	response.sendRedirect("Withdraw.jsp");
+            }
+        }
+        
+        else if ("checkBalance".equals(action)) {
+            int balance = com.user.DAO.UserDAO.bankManagement.getBalance(accountNumber);
+            response.getWriter().write("Balance: " + balance);
+        }
+    }
+}
+
+
+        if (username === '' || password === '' || amount === '') {
+        alert('Please fill in all required fields.');
+        response.sendRedirect("Withdraw.jsp");
+        
+    }
+    else{
+    
+    
+    
+    package com.user.DAO;
+
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import com.controller.Connect;
+
+public class UserDAO {
+
+    public class bankManagement { // these class provides all bank method
+
+        private static final int NULL = 0;
+
+        static Connection connect = Connect.getConnection();
+        static String sql = "";
+        
+        public static boolean deposit(int acNo, int amount) {
+            PreparedStatement st = null;
+            ResultSet rs = null;
+
+            try {
+                // Check if the account number exists
+                sql = "SELECT 1 FROM users WHERE AccountNo = ?";
+                st = connect.prepareStatement(sql);
+                st.setInt(1, acNo);
+                rs = st.executeQuery();
+
+                if (!rs.next()) {
+                    // Account number does not exist
+                    return false;
+                }
+
+                // Account number exists, proceed with deposit
+                sql = "UPDATE users SET balance = balance + ? WHERE AccountNo = ?";
+                st = connect.prepareStatement(sql);
+                st.setInt(1, amount);
+                st.setInt(2, acNo);
+                st.executeUpdate();
+                return true;
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+                return false;
+
+            } finally {
+                // Properly close the resources
+                try {
+                    if (rs != null) {
+                        rs.close();
+                    }
+                    if (st != null) {
+                        st.close();
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+                
+        
+        public static boolean withdraw(String username, String password, int amount) {
+            PreparedStatement st = null;
+            ResultSet rs = null;
+
+            try {
+                sql = "SELECT * FROM users WHERE username = ? AND password = ?";
+                st = connect.prepareStatement(sql);
+                st.setString(1, username);
+                st.setString(2, password);
+                rs = st.executeQuery();
+
+                if (rs.next()) {
+                    int currentBalance = rs.getInt("balance");
+
+                    if (currentBalance >= amount) {
+                        sql = "UPDATE users SET balance = balance - ? WHERE username = ? AND password = ?";
+                        st = connect.prepareStatement(sql);
+                        st.setInt(1, amount);
+                        st.setString(2, username);
+                        st.setString(3, password);
+                        st.executeUpdate();
+                        return true;
+                    } else {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+                return false;
+
+            } finally {
+                try {
+                    if (rs != null) rs.close();
+                    if (st != null) st.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        
+        
+           
+        
+        public static int getBalance(int acNo) { // fetch balance method
+            int balance = NULL;
+           
+            
+
+            sql = "select balance from users where AccountNo = ?";
+            try (PreparedStatement st = connect.prepareStatement(sql)) {
+                st.setInt(1, acNo);
+
+                try (ResultSet rs = st.executeQuery()) {
+                    if (rs.next()) {
+                        balance = rs.getInt("balance");
+                    }
+                }
+                
+            } catch (SQLException e) {
+                e.printStackTrace();
+                
+            }
+
+            return balance;
+        }
+        
+        
+    }
+}
+    

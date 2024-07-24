@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>New Account</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<h2>Create</h2><br>
+<div class="create">
+    <form id="create" method="post" action="AdminServlet">
+        
+        <label><b>Full Name</b></label>
+        <input type="text" name="name" id="name" placeholder="Enter Full Name" required>
+        <br><br>
+        
+        <label><b>Address</b></label>
+        <input type="text" name="address" id="address" placeholder="Enter Address" required>
+        <br><br>
+        
+        <label><b>Mobile Number</b></label>
+        <input type="text" name="mobNo" id="mobNo" placeholder="Enter Mobile Number" required>
+        <br><br>
+        
+        <label><b>Email ID</b></label>
+        <input type="text" name="email" id="email" placeholder="Enter Email ID" required>
+        <br><br>
+        
+        <label><b>Type</b></label>
+        <input type="text" name="type" id="type" placeholder="Enter type of Account" required>
+        <br><br>
+        
+        <label><b>Initial Balance</b></label>
+        <input type="number" name="Balance" id="Balance" placeholder="Enter Initial Balance" required>
+        <br><br>
+        
+        <label><b>Date of Birth</b></label>
+        <input type="text" name="dob" id="dob" placeholder="Enter Date of Birth" required>
+        <br><br>
+        
+        <label><b>ID No</b></label>
+        <input type="text" name="idNo" id="idNo" placeholder="Enter ID No" required>
+        <br><br>
+        
+        <label><b>User Name</b></label>
+        <input type="text" name="username" id="username" placeholder="Create Username" required>
+        <br><br>
+        
+        <label><b>Password</b></label>
+        <input type="text" name="password" id="password" placeholder="Create Password" required>
+        <br><br>
+        
+        <input type="submit"  onclick="submitForm('create')" value="Create Account">
+        <br><br>
+        
+    </form>
+</div>
+<script>
+        function submitForm(action) {
+            var form = document.getElementById('bankForm');
+            var actionInput = document.createElement('input');
+            actionInput.type = 'hidden';
+            actionInput.name = 'action';
+            actionInput.value = action;
+            form.appendChild(actionInput);
+            form.submit();
+        }
+    </script>
+</body>
+</html>
